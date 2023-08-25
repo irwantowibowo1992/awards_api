@@ -7,21 +7,25 @@ async function getAllAwards({
   pointFrom = null,
   pointTo = null,
 }) {
-  const lists = AwardModel.query()
+  let lists = AwardModel.query()
     .select(
       'aw.id as award_id',
       'aw.title',
       'aw.point',
       'ac.id as award_category_id',
-      'ac.name as award_category'
+      'ac.name as award_category',
+      'ai.image'
     )
     .alias('aw')
     .leftJoin({ ac: 'award_category' }, (join) => {
       join.on('ac.id', 'aw.award_category_id');
+    })
+    .leftJoin({ ai: 'award_image' }, (join) => {
+      join.on('ai.award_id', 'aw.id');
     });
 
   if (category) {
-    lists = lists.whereIn('aw.award_category_id', category.split(','));
+    lists = lists.whereIn('ac.name', category.split(','));
   }
 
   if (pointFrom) {
